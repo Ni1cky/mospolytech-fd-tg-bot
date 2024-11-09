@@ -8,7 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import MenuButtonCommands
 from dotenv import load_dotenv
 
-from handlers import commands_router, documents_fsm_router, ALL_COMMANDS
+from handlers import commands_router, documents_fsm_router, ALL_COMMANDS, faq_router
 
 
 async def main() -> None:
@@ -18,6 +18,7 @@ async def main() -> None:
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(commands_router)
     dp.include_router(documents_fsm_router)
+    dp.include_router(faq_router)
 
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await bot.set_my_commands(ALL_COMMANDS)
