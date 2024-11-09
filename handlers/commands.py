@@ -13,6 +13,7 @@ ALL_COMMANDS = [
     BotCommand(command="documents", description="Заполнить документы"),
     BotCommand(command="programs", description="Доступные программы"),
     BotCommand(command="advice", description="Подобрать программу"),
+    BotCommand(command="faq", description="Часто задаваемые вопросы"),
     BotCommand(command="cancel", description="Отменить"),
 ]
 
