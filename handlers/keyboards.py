@@ -21,5 +21,6 @@ def after_start_keyboard():
             [KeyboardButton(text="📄 Заявление и договор")],
             [KeyboardButton(text="📋 Просмотр программ")],
             [KeyboardButton(text="📊 Рекомендации")],
+            [KeyboardButton(text="ℹ️ FAQ")],
         ])
     return keyboard
