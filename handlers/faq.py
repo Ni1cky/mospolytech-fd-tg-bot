@@ -1,6 +1,7 @@
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from handlers.keyboards import after_start_keyboard
 
 faq_router = Router()
 
@@ -21,6 +22,15 @@ FAQ_DATA = {
     "Контакт для вопросов и консультаций": "Телефон: +7(495) 223-05-23\nПочта: inopt@mospolytech.ru",
 }
 
+def get_faq_menu():
+    keyboard = InlineKeyboardBuilder()
+    for question in FAQ_DATA.keys():
+        keyboard.button(text=question, callback_data=f"faq:{question}")
+
+    keyboard.button(text="⬅️ Назад", callback_data="faq_back")
+    keyboard.button(text="❌ Отмена", callback_data="faq_cancel")
+
+    return keyboard.as_markup()
 
 @faq_router.message(commands=["faq"])
 async def faq_command(message: Message):
@@ -37,4 +47,14 @@ async def faq_answer(callback: CallbackQuery):
     answer = FAQ_DATA.get(question, "Извините, ответ на этот вопрос не найден.")
 
     await callback.message.answer(f"<b>{question}</b>\n\n{answer}")
+    await callback.answer()
+
+@faq_router.callback_query(lambda callback: callback.data == "faq_back")
+async def faq_back(callback: CallbackQuery):
+    await callback.message.answer("Вы вернулись в главное меню.", reply_markup=after_start_keyboard())
+    await callback.answer()
+
+@faq_router.callback_query(lambda callback: callback.data == "faq_cancel")
+async def faq_cancel(callback: CallbackQuery):
+    await callback.message.answer("Вы вышли из раздела FAQ.", reply_markup=after_start_keyboard())
     await callback.answer()
