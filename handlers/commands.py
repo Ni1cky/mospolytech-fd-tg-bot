@@ -39,3 +39,7 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
 async def not_implemented_commands_handler(message: Message) -> None:
     await message.answer("Пока не реализовано")
     # TODO: реализовать команду cancel. Она должна отменять любой текущий сценарий
+@commands_router.message(F.text == "ℹ️ FAQ")
+async def faq_button_handler(message: Message):
+    await message.answer("Используйте команду /faq для получения ответа на ваши вопросы.")
+
