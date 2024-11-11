@@ -1,4 +1,5 @@
 from aiogram import Router
+from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.handlers.keyboards import after_start_keyboard
@@ -26,26 +27,18 @@ def get_faq_menu():
     keyboard = InlineKeyboardBuilder()
     for question in FAQ_DATA.keys():
         keyboard.button(text=question, callback_data=f"faq:{question}")
-
     keyboard.button(text="⬅️ Назад", callback_data="faq_back")
     keyboard.button(text="❌ Отмена", callback_data="faq_cancel")
-
     return keyboard.as_markup()
 
-@faq_router.message(commands=["faq"])
+@faq_router.message(Command("faq"))
 async def faq_command(message: Message):
-    keyboard = InlineKeyboardBuilder()
-    for question in FAQ_DATA.keys():
-        keyboard.button(text=question, callback_data=f"faq:{question}")
-
-    await message.answer("Выберите интересующий вас вопрос:", reply_markup=keyboard.as_markup())
-
+    await message.answer("Выберите интересующий вас вопрос:", reply_markup=get_faq_menu())
 
 @faq_router.callback_query(lambda callback: callback.data.startswith("faq:"))
 async def faq_answer(callback: CallbackQuery):
     question = callback.data.split("faq:")[1]
     answer = FAQ_DATA.get(question, "Извините, ответ на этот вопрос не найден.")
-
     await callback.message.answer(f"<b>{question}</b>\n\n{answer}")
     await callback.answer()
 
