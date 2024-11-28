@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommand
 
 from bot.handlers.keyboards import after_start_keyboard
-from bot.handlers.faq import faq_router, faq_command_handler
+
 
 
 commands_router = Router()
@@ -37,6 +37,7 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
     )
 
 
+@commands_router.message(F.text == "❌ Отменить")
 @commands_router.message(Command("cancel"))
 async def cancel_command_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
@@ -52,7 +53,3 @@ async def not_implemented_commands_handler(message: Message) -> None:
     await message.answer("Пока не реализовано")
     # TODO: реализовать команду cancel. Она должна отменять любой текущий сценарий
 
-
-@faq_router.message(F.text == "❓ FAQ")
-async def faq_button_handler(message: Message):
-    await faq_command_handler(message)
