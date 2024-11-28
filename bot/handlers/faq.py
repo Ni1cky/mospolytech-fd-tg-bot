@@ -1,47 +1,40 @@
-from aiogram import Router
-from aiogram.types import Message, CallbackQuery
+from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.fsm.context import FSMContext
-from bot.handlers.keyboards import generate_faq_keyboard
+from aiogram.types import Message, CallbackQuery
+from bot.handlers.keyboards import generate_faq_keyboard, back_to_faq_keyboard
+from bot.handlers.faq_data import questions_and_answers
+
 
 faq_router = Router()
 
 
-FAQ_DATA = {
-    "Что такое ДПО?": "ДПО (дополнительное профессиональное образование) — это программы для повышения квалификации и переподготовки специалистов, помогающие освоить новые навыки и знания.",
-    "Какие программы предлагает Московский Политех?": "Московский Политех предлагает курсы по IT, менеджменту, маркетингу, инженерии и многим другим направлениям.",
-    "Как записаться на курс?": "Вы можете оставить заявку прямо в этом боте или на сайте. Просто выберите программу, и мы свяжемся с вами для уточнения деталей.",
-    "Какие документы нужны для записи?": "Для записи потребуются паспорт, СНИЛС. Для некоторых программ может быть нужна дополнительная информация.",
-    "Как проходит обучение?": "Форматы: очный, дистанционный или смешанный - в зависимости от выбранной программы.",
-    "Сколько длится курс?": "Курсы могут длиться от нескольких недель до нескольких месяцев, в зависимости от программы.",
-    "Сколько стоит обучение?": "Стоимость зависит от программы. Подробнее вы можете ознакомиться на сайте ДПО или в нашем боте.",
-    "Можно ли получить льготы?": "Для студентов и выпускников Московского Политеха предусмотрены льготы и скидки. Уточните детали у сотрудника ДПО.",
-    "Какой документ выдается после окончания курса?": "Вы получите удостоверение о повышении квалификации или диплом о переподготовке в зависимости от программы.",
-    "Какие перспективы открывает программа?": "ДПО программы помогают перейти на более высокие должности, освоить новые навыки и повысить востребованность на рынке труда.",
-    "Есть ли программы для иностранных студентов?": "Да, доступны курсы для международных студентов, в том числе и на английском языке.",
-    "Контакт для вопросов и консультаций": "Для вопросов обращайтесь по телефону: +7(495) 223-05-23 или напишите на почту: inopt@mospolytech.ru.",
-}
-
-
+@faq_router.message(F.text == "❓ FAQ")
 @faq_router.message(Command("faq"))
 async def faq_command_handler(message: Message) -> None:
     await message.answer(
-        text="Выберите вопрос, чтобы получить ответ:",
+        text="Выберите вопрос из списка, чтобы получить ответ:",
         reply_markup=generate_faq_keyboard()
     )
 
 
-@faq_router.callback_query(lambda c: c.data.startswith("faq:"))
-async def faq_callback_handler(callback: CallbackQuery, state: FSMContext) -> None:
-    data = callback.data.split(":", 1)[1]
+@faq_router.callback_query(F.data.startswith("faq_"))
+async def answer_faq_callback(callback: CallbackQuery) -> None:
+    try:
+        index = int(callback.data.split("_")[1]) - 1
+        if 0 <= index < len(questions_and_answers):
+            question = list(questions_and_answers.keys())[index]
+            answer = questions_and_answers[question]
+            await callback.message.edit_text(
+                text=f"<b>{question}</b>\n\n{answer}",
+                reply_markup=back_to_faq_keyboard()
+            )
+    except (ValueError, IndexError):
+        await callback.message.edit_text("Произошла ошибка. Попробуйте снова.")
 
-    if data == "cancel":
-        await state.clear()
-        await callback.message.edit_text("Вы вернулись в главное меню.")
-        return
 
-    answer = FAQ_DATA.get(data, "Ответ не найден.")
+@faq_router.callback_query(F.data == "back_to_faq")
+async def back_to_faq_handler(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
-        text=f"<b>{data}</b>\n\n{answer}",
+        text="Выберите вопрос из списка, чтобы получить ответ:",
         reply_markup=generate_faq_keyboard()
     )
