@@ -80,7 +80,7 @@ def create_documents(data: Dict[str, Any]) -> list[InputMediaDocument]:
 
     contract = DocxTemplate("docs_templates/contract_template.docx")
     contract.render(data)
-    file_path = f"created_docs/{data['full_name']} {datetime.datetime.now().strftime('%d.%m.%Y-%H.%M.%S')}.docx"
+    file_path = f"created_docs/Contract {data['full_name']} {datetime.datetime.now().strftime('%d.%m.%Y-%H.%M.%S')}.docx"
     contract.save(file_path)
 
     contract_to_return = InputMediaDocument(media=FSInputFile(file_path))
@@ -88,7 +88,7 @@ def create_documents(data: Dict[str, Any]) -> list[InputMediaDocument]:
 
     statement = DocxTemplate("docs_templates/statement_template.docx")
     statement.render(data)
-    file_path = f"created_docs/{data['full_name']} {datetime.datetime.now().strftime('%d.%m.%Y-%H.%M.%S')}.docx"
+    file_path = f"created_docs/Statement {data['full_name']} {datetime.datetime.now().strftime('%d.%m.%Y-%H.%M.%S')}.docx"
     statement.save(file_path)
 
     statement_to_return = InputMediaDocument(media=FSInputFile(file_path))
@@ -123,8 +123,11 @@ async def capture_program_name(message: Message, state: FSMContext):
 
 def genter(word: str):
     morph = pymorphy3.MorphAnalyzer()
-    result = ' '.join(morph.parse(word)[0].inflect({'gent'}).word for word in word.split())
-    return result
+    results = []
+    for part in word.split():
+        result = morph.parse(part)[0].inflect({"gent"}).word
+        results.append(result)
+    return results
 
 
 @documents_fsm_router.message(F.text, ApplicationForm.full_name)
@@ -201,15 +204,14 @@ def format_phone_number(phone_number: str):
 @documents_fsm_router.message(F.text, ApplicationForm.phone)
 async def capture_phone(message: Message, state: FSMContext):
     await state.update_data(phone=format_phone_number(message.text))
-    await message.answer("Укажите сведения об образовании(что окончил и когда: ")
+    await message.answer("Укажите сведения об образовании(что окончил и когда): ")
     await state.set_state(ApplicationForm.education_info)
 
 
 @documents_fsm_router.message(F.text, ApplicationForm.education_info)
 async def capture_education_info(message: Message, state: FSMContext):
     await state.update_data(education_info=message.text)
-    await message.answer("Укажите занимаемую должность на момент обучения студент\
-     Московского Политехнического Университета, факультет/институт:")
+    await message.answer("Укажите факультет/институт:")
     await state.set_state(ApplicationForm.workname)
 
 
