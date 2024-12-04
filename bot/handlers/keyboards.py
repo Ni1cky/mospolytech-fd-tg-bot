@@ -28,13 +28,19 @@ def after_start_keyboard():
 
 def generate_faq_keyboard():
     keyboard = []
+    row = []
     for index, question in enumerate(questions_and_answers.keys(), start=1):
-        keyboard.append([
+        row.append(
             InlineKeyboardButton(
-                text=f"{index}. {question}",
+                text=f"{index}",
                 callback_data=f"faq_{index}"
             )
-        ])
+        )
+        if len(row) == 5:
+            keyboard.append(row)
+            row = []
+    if row:
+        keyboard.append(row)
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 def back_to_faq_keyboard():
