@@ -6,6 +6,7 @@ from aiogram.types import (
 )
 from bot.handlers.faq_data import questions_and_answers
 
+
 def agreement_keyboard():
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Продолжить", callback_data="continue")],
@@ -19,14 +20,14 @@ def after_start_keyboard():
         resize_keyboard=True,
         keyboard=[
             [KeyboardButton(text="📄 Заявление и договор")],
-            [KeyboardButton(text="📋 Просмотр программ")],
-            [KeyboardButton(text="📊 Рекомендации")],
+            [KeyboardButton(text="📋 Просмотр дисциплин")],
             [KeyboardButton(text="❓ FAQ")],
             [KeyboardButton(text="❌ Отменить")],
         ])
     return keyboard
 
-def generate_faq_keyboard():
+
+def faq_keyboard():
     keyboard = []
     row = []
     for index, question in enumerate(questions_and_answers.keys(), start=1):
@@ -42,6 +43,7 @@ def generate_faq_keyboard():
     if row:
         keyboard.append(row)
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
 
 def back_to_faq_keyboard():
     return InlineKeyboardMarkup(
