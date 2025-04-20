@@ -98,7 +98,7 @@ async def claim_agreement(call: CallbackQuery, state: FSMContext):
         return
 
     await state.update_data(agreement=True)
-    await call.message.answer("Теперь укажите номер Вашей учебной группы:\n(123-456)")
+    await call.message.answer("Укажите номер Вашей учебной группы:\n(123-456)")
     await state.set_state(ApplicationForm.group_number)
 
 
