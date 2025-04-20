@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
-from bot.handlers.keyboards import generate_faq_keyboard, back_to_faq_keyboard
+from bot.handlers.keyboards import inline_faq_keyboard, inline_back_to_faq_keyboard
 from bot.handlers.faq_data import questions_and_answers
 
 
@@ -14,7 +14,7 @@ question_list = "\n".join([f"{i + 1}. {question}" for i, question in enumerate(q
 async def faq_command_handler(message: Message) -> None:
     await message.answer(
         text=f"Выберите интересующий вас вопрос:\n\n{question_list}",
-        reply_markup=generate_faq_keyboard()
+        reply_markup=inline_faq_keyboard()
     )
 
 
@@ -27,7 +27,7 @@ async def answer_faq_callback(callback: CallbackQuery) -> None:
             answer = questions_and_answers[question]
             await callback.message.edit_text(
                 text=f"<b>{question}</b>\n\n{answer}",
-                reply_markup=back_to_faq_keyboard()
+                reply_markup=inline_back_to_faq_keyboard()
             )
     except (ValueError, IndexError):
         await callback.message.edit_text("Произошла ошибка. Попробуйте снова.")
@@ -37,5 +37,5 @@ async def answer_faq_callback(callback: CallbackQuery) -> None:
 async def back_to_faq_handler(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
         text=f"Выберите вопрос из списка, чтобы получить ответ:\n\n{question_list}",
-        reply_markup=generate_faq_keyboard()
+        reply_markup=inline_faq_keyboard()
     )
