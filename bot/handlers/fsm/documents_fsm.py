@@ -15,7 +15,7 @@ from aiogram.types import (
 )
 from docxtpl import DocxTemplate
 
-from bot.handlers.keyboards import agreement_keyboard
+from bot.handlers.keyboards import inline_agreement_keyboard
 
 documents_fsm_router = Router()
 
@@ -33,8 +33,7 @@ class ApplicationForm(StatesGroup):
 def cap_current_date():
     return '.'.join(reversed((str(datetime.date.today()).split('-'))))
 
-
-@documents_fsm_router.message(F.text == "📄 Запись на факультативную дисциплину")
+@documents_fsm_router.message(F.text == "📄 Заполнить заявление")
 @documents_fsm_router.message(Command("documents"))
 async def start_filling_documents(message: Message, state: FSMContext):
     await state.clear()
@@ -46,7 +45,7 @@ async def start_filling_documents(message: Message, state: FSMContext):
         "* Номер группы\n"
         "При заполнении всех пунктов, мы пришлем тебе заявление, которое останется только подписать."
         "\nПродолжим?",
-        reply_markup=agreement_keyboard()
+        reply_markup=inline_agreement_keyboard()
     )
     await state.set_state(ApplicationForm.agreement)
 
@@ -162,7 +161,7 @@ async def group_number(message: Message, state: FSMContext):
         f"✓ ФИО: {data['full_name']}\n"
         f"✓ Номер телефона: {data['phone']}\n"
         f"✓ Email {data['email']}\n"
-        f"Если все верно, нажимай Отправить",
-        reply_markup=agreement_keyboard()
+        f"Если все верно, нажимай Продолжить",
+        reply_markup=inline_agreement_keyboard()
     )
     await state.set_state(ApplicationForm.agreement)

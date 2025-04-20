@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommand
 
-from bot.handlers.keyboards import after_start_keyboard
+from bot.handlers.keyboards import reply_after_start_keyboard
 
 
 commands_router = Router()
@@ -29,7 +29,7 @@ async def command_start_handler(message: Message, state: FSMContext) -> None:
         "Заполните и получите готовые документы на обучение в формате Word.\n\n"
         "<b>🔹Ответы на часто задаваемые вопросы.</b>\n"
         "Получите ответы на ваши вопросы",
-        reply_markup=after_start_keyboard()
+        reply_markup=reply_after_start_keyboard()
     )
 
 
@@ -39,7 +39,7 @@ async def cancel_command_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
         text="Текущее действие было отменено. Вы вернулись на  главное меню.",
-        reply_markup=after_start_keyboard()
+        reply_markup=reply_after_start_keyboard()
     )
 
 
