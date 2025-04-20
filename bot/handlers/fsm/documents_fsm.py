@@ -31,7 +31,7 @@ def genitive_case(name: str):
 
 def fill_statement_with_fsm_data(fsm_data: Dict[str, Any]) -> FSInputFile:
     fsm_data["today"] = datetime.now().strftime("%d.%m.%Y")
-    # не используется
+    # не используется внутри шаблона документа
     fsm_data["full_name_genitive"] = genitive_case(fsm_data["full_name"])
 
     statement = DocxTemplate("docs_templates/statement_template.docx")
@@ -97,11 +97,18 @@ async def claim_agreement(call: CallbackQuery, state: FSMContext):
         await state.clear()
         return
 
-    await call.message.answer(
+    await state.update_data(agreement=True)
+    await call.message.answer("Теперь укажите номер Вашей учебной группы:\n(123-456)")
+    await state.set_state(ApplicationForm.group_number)
+
+
+@documents_fsm_router.message(F.text, ApplicationForm.group_number)
+async def capture_group_number(message: Message, state: FSMContext):
+    await state.update_data(group_number=message.text)
+    # Todo здесь парсим сайт+документ и предлагаем на выбор дисциплины
+    await message.answer(
         "Ниже представлен список дисциплин, доступных для записи.\nВыберите необходимую. (Пока ручной ввод)."
     )
-    # Todo здесь парсим сайт+документ и предлагаем на выбор дисциплины
-    await state.update_data(agreement=True)
     await state.set_state(ApplicationForm.discipline_name)
 
 
@@ -129,13 +136,7 @@ async def capture_phone(message: Message, state: FSMContext):
 @documents_fsm_router.message(F.text, ApplicationForm.email)
 async def capture_email(message: Message, state: FSMContext):
     await state.update_data(email=message.text)
-    await message.answer("Теперь укажите номер Вашей учебной группы:\n(123-456)")
-    await state.set_state(ApplicationForm.group_number)
 
-
-@documents_fsm_router.message(F.text, ApplicationForm.group_number)
-async def capture_group_number(message: Message, state: FSMContext):
-    await state.update_data(group_number=message.text)
     data = await state.get_data()
     await message.answer(
         f"Отлично, все данные введены!\n"
